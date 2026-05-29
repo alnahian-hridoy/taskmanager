@@ -1,46 +1,117 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../axiosConfig';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
       const response = await axiosInstance.post('/api/auth/login', formData);
       login(response.data);
-      navigate('/tasks');
+      navigate('/home');
     } catch (error) {
-      alert('Login failed. Please try again.');
+      setError('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20">
-      <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded">
-        <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
-        <input
-          type="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
-          Login
-        </button>
-      </form>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Quiz Management Portal</h1>
+          <p className="text-gray-600">Login to access your quizzes</p>
+        </div>
+
+        {/* Form Container */}
+        <div className="bg-white rounded-lg shadow-xl p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
+
+            {/* Email Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                required
+              />
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                required
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 rounded-lg hover:opacity-90 transition duration-200 disabled:opacity-50"
+            >
+              {loading ? 'Signing in...' : 'Confirm'}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="mt-6 relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or sign in with</span>
+            </div>
+          </div>
+
+          {/* Social Login Buttons */}
+          <div className="mt-6 space-y-3">
+            <button className="w-full bg-white border border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-50 transition duration-200 flex items-center justify-center gap-2">
+              <span>🔍</span>
+              Continue with Google
+            </button>
+            <button className="w-full bg-white border border-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-50 transition duration-200 flex items-center justify-center gap-2">
+              <span>🍎</span>
+              Continue with Apple
+            </button>
+          </div>
+
+          {/* Register Link */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-purple-600 font-semibold hover:text-purple-700">
+                Create Account
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
